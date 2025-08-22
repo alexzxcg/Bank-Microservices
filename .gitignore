@@ -1,0 +1,37 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Bytecode do Java
+*.class
+
+# Logs
+*.log
+
+# Arquivos do Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Arquivos do Gradle
+.gradle/
+build/
+
+# Arquivos do NetBeans
+nbproject/private/
+
+# Arquivos do Eclipse
+*.classpath
+*.project
+*.settings/
+
+# Arquivos do VS Code
+.vscode/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
