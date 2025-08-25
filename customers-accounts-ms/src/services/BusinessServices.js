@@ -1,32 +1,16 @@
-const Services = require('./Services');
+const AuthSubjectServices = require('./_shared/AuthSubjectServices');
 const BusinessAggregateRepository = require('../repositories/BusinessAggregateRepository');
 
 const BusinessOutputDTO = require('../dtos/business-dto/BusinessOutputDTO');
 const BusinessReadDTO = require('../dtos/business-dto/BusinessReadDTO');
-const { hashPassword } = require('../utils/password');
-const { AppError } = require('../middlewares/error/errorHandler');
 
-class BusinessServices extends Services {
+class BusinessServices extends AuthSubjectServices {
   constructor() {
-    super(BusinessAggregateRepository, {
-      ReadDTO: BusinessReadDTO,
-      CreateOutputDTO: BusinessOutputDTO,
-    });
-  }
-
-  async beforeCreate(data, _ctx) {
-    if (!data.password) {
-      throw new AppError('password is required', 400);
-    }
-    data.passwordHash = await hashPassword(data.password);
-    delete data.password;
-  }
-
-  async beforeUpdate(_id, data, _ctx) {
-    if (data.password) {
-      data.passwordHash = await hashPassword(data.password);
-      delete data.password;
-    }
+    super(
+      BusinessAggregateRepository,
+      { ReadDTO: BusinessReadDTO, CreateOutputDTO: BusinessOutputDTO },
+      { plainField: 'password', hashField: 'passwordHash', requireOnCreate: true }
+    );
   }
 }
 
