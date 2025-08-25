@@ -1,7 +1,16 @@
 const app = require('./src/app.js');
+const { sequelize } = require('./src/models'); 
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log('servidor escutando!');
-});
+(async () => {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync();
+    app.listen(PORT, () => {
+      console.log(`Servidor escutando na porta ${PORT}!`);
+    });
+  } catch (err) {
+    console.error('Erro ao iniciar servidor:', err);
+  }
+})();
