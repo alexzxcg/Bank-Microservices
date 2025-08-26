@@ -30,12 +30,14 @@ class AccountServices extends Services {
   }
 
   async beforeCreate(data) {
+    data.type = data.type?.toUpperCase();
     const { type: customerType } = await this.customerRepository.findTypeById(data.customerId);
     AccountCreationPolicy.assertCanCreate({ customerType, accountType: data.type });
 
-    data.branch = DEFAULT_BRANCH;                   
-    data.number = await this.generateUniqueAccountNumber(); 
+    data.branch = DEFAULT_BRANCH;
+    data.number = await this.generateUniqueAccountNumber();
   }
+
 
   async findByNumber(number) {
     const account = await this.accountRepository.findByNumber(number);
@@ -61,7 +63,7 @@ class AccountServices extends Services {
   }
 
   async createOwned(customerId, dto) {
-    dto.customerId = customerId; 
+    dto.customerId = customerId;
     return super.create(dto);
   }
 
@@ -77,16 +79,9 @@ class AccountServices extends Services {
     }
 
     if (data.type !== undefined) {
+      data.type = data.type?.toUpperCase();
       const acc = await this.accountRepository.findByIdOrThrow(id);
       const { type: customerType } = await this.customerRepository.findTypeById(acc.customerId);
-
-      if (customerType === 'BUSINESS') {
-        throw new AppError('Business accounts cannot change type (fixed to MERCHANT)', 400);
-      }
-
-      if (customerType === 'PERSON' && data.type === 'MERCHANT') {
-        throw new AppError('Person accounts can only be CHECKING or SAVINGS', 400);
-      }
 
       AccountCreationPolicy.assertCanCreate({ customerType, accountType: data.type });
     }
@@ -108,26 +103,20 @@ class AccountServices extends Services {
     const acc = await this.accountRepository.findByIdAndCustomer(accountId, customerId);
     if (!acc) throw new AppError('Account not found', 404);
 
-    const { type: customerType } = await this.customerRepository.findTypeById(customerId);
-
     if (dto.type !== undefined) {
-      if (customerType === 'BUSINESS') {
-        throw new AppError('Business accounts cannot change type (fixed to MERCHANT)', 400);
-      }
-
-      if (customerType === 'PERSON' && dto.type === 'MERCHANT') {
-        throw new AppError('Person accounts can only be CHECKING or SAVINGS', 400);
-      }
+      dto.type = dto.type?.toUpperCase();  
+      const { type: customerType } = await this.customerRepository.findTypeById(customerId);
       AccountCreationPolicy.assertCanCreate({ customerType, accountType: dto.type });
-    }
 
-    if (dto.type !== undefined && dto.type === acc.type) {
-      return new AccountReadDTO(acc);
+      if (dto.type === acc.type) {
+        return new AccountReadDTO(acc);
+      }
     }
 
     const updated = await this.accountRepository.updateOwned(accountId, customerId, { type: dto.type });
     return new AccountReadDTO(updated);
   }
+
 
   async deleteOwned(customerId, accountId) {
     const ok = await this.accountRepository.deleteOwned(accountId, customerId);
