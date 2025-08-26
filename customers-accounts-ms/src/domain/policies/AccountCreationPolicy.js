@@ -7,12 +7,24 @@ const ALLOWED_BY_CUSTOMER_TYPE = {
 
 class AccountCreationPolicy {
   static assertCanCreate({ customerType, accountType }) {
-    const allowed = ALLOWED_BY_CUSTOMER_TYPE[customerType];
-    if (!allowed) {
-      throw new AppError(`Unsupported customer type: ${customerType}`, 400);
+    const type = String(customerType || '').toUpperCase();
+    const acc  = String(accountType  || '').toUpperCase();
+
+    if (type === 'ADMIN') {
+      throw new AppError('Admins cannot have accounts', 422);
     }
-    if (!allowed.includes(accountType)) {
-      const msg = `Customers of type ${customerType} can only create accounts: ${allowed.join(', ')}`;
+
+    const allowed = ALLOWED_BY_CUSTOMER_TYPE[type];
+    if (!allowed) {
+      throw new AppError(`Unsupported customer type: ${type}`, 400);
+    }
+
+    if (!acc) {
+      throw new AppError('Account type is required', 400);
+    }
+
+    if (!allowed.includes(acc)) {
+      const msg = `Customers of type ${type} can only create accounts: ${allowed.join(', ')}`;
       throw new AppError(msg, 400);
     }
   }
