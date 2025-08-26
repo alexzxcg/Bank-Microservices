@@ -3,11 +3,17 @@ const { Customer } = require('../models');
 const { AppError } = require('../middlewares/error/errorHandler.js');
 
 class CustomerRepository extends Repository {
-  constructor() { super(Customer); }
+  constructor() {
+    super(Customer);
+  }
 
-  async findTypeById(id, ctx) {
-    const c = await this.findByIdOrThrow(id, ctx);
-    return { id: c.id, type: c.type };
+  async findTypeById(id, ctx = {}) {
+    const row = await Customer.findByPk(id, {
+      attributes: ['id', 'type'],
+      transaction: ctx.transaction, 
+    });
+    if (!row) throw new AppError('Customer not found', 404);
+    return row.get({ plain: true }); 
   }
 }
 
