@@ -5,7 +5,7 @@ module.exports = (schema) => async (req, _res, next) => {
   try {
     req.body = await schema.validate(req.body, {
       abortEarly: false,
-      stripUnknown: true,
+      stripUnknown: false,
     });
     return next();
   } catch (err) {
