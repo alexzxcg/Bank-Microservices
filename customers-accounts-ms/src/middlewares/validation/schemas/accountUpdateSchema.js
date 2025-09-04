@@ -1,20 +1,17 @@
 const yup = require('yup');
 
+const allowedTypes = ['CHECKING', 'SAVINGS', 'MERCHANT'];
+
+const toUpper = (v) => (typeof v === 'string' ? v.toUpperCase() : v);
+
 const accountUpdateSchema = yup
   .object({
-    customerId: yup
-      .number()
-      .typeError('customerId must be a number')
-      .integer('customerId must be an integer')
-      .positive('customerId must be positive')
-      .required('customerId is required'),
-
     type: yup
       .string()
-      .transform((v) => (v ? v.toUpperCase() : v))
-      .oneOf(['CHECKING', 'SAVINGS', 'MERCHANT'], 'type must be one of: CHECKING, SAVINGS, MERCHANT')
+      .transform(toUpper)
+      .oneOf(allowedTypes, 'one of: CHECKING, SAVINGS, MERCHANT')
       .required('type is required'),
   })
-  .noUnknown(true, 'unknown fields are not allowed');
+  .noUnknown(true, 'unknown fields');
 
 module.exports = { accountUpdateSchema };
