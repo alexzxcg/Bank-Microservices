@@ -4,25 +4,29 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Person extends Model {
     static associate(models) {
-      this.belongsTo(models.Customer, { foreignKey: 'customerId', as: 'customer' });
+      this.belongsTo(models.Customer, {
+        foreignKey: 'customerId',
+        as: 'customer',
+        onDelete: 'CASCADE',
+      });
     }
   }
 
   Person.init(
     {
-      customerId: { 
-        type: DataTypes.INTEGER, primaryKey: true 
+      customerId: {
+        type: DataTypes.INTEGER, primaryKey: true
       },
 
-      monthlyIncome: { 
-        type: DataTypes.DECIMAL(10,2), 
-        allowNull: true 
+      monthlyIncome: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true
       },
-      
-      cpf: { 
-        type: DataTypes.STRING, 
-        allowNull: false, 
-        unique: true 
+
+      cpf: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
       },
     },
     { sequelize, modelName: 'Person', tableName: 'persons' }
