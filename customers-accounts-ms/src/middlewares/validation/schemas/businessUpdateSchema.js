@@ -1,13 +1,10 @@
 const yup = require('yup');
-const { toDigits, toTrim } = require('./_sharedTransforms');
-const { validateCNPJ } = require('../../../utils/validateCNPJ');
+const { toTrim } = require('./_sharedTransforms');
+
 
 const businessUpdateSchema = yup
   .object({
-    type: yup.mixed().oneOf(['BUSINESS']).optional(),
-
     name: yup.string().transform(toTrim).min(3).optional(),
-    email: yup.string().transform(toTrim).email().optional(),
     birthDate: yup.date().typeError('birthDate must be date').nullable().optional(),
     phone: yup.string().transform(toTrim).nullable().optional(),
     street: yup.string().transform(toTrim).nullable().optional(),
@@ -16,15 +13,6 @@ const businessUpdateSchema = yup
     city: yup.string().transform(toTrim).nullable().optional(),
     state: yup.string().transform(toTrim).max(2).nullable().optional(),
     zipCode: yup.string().transform(toTrim).nullable().optional(),
-
-    cnpj: yup
-      .string()
-      .transform((v) => (v ? toDigits(v) : v))
-      .nullable()
-      .optional()
-      .test('len-14-if-present', 'cnpj must have 14 digits', (v) => v == null || v.length === 14)
-      .test('no-repeat-if-present', 'CNPJ cannot be a repeated sequence', (v) => !v || !/^(\d)\1{13}$/.test(v))
-      .test('check-digits-if-present', 'Invalid CNPJ', (v) => !v || validateCNPJ(v)),
 
     isIcmsExempt: yup.boolean().optional(),
 
