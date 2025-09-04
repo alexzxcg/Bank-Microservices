@@ -2,6 +2,7 @@ const { Router } = require('express');
 const authenticate = require('../middlewares/auth/authenticate');
 const { authorizeSelfOrAdmin } = require('../middlewares/auth/authorize');
 const validate = require('../middlewares/validation/validateFactory');
+const { AppError } = require('../middlewares/error/errorHandler');
 
 const { accountCreateSchema } = require('../middlewares/validation/schemas/accountCreateSchema');
 const { accountUpdateSchema } = require('../middlewares/validation/schemas/accountUpdateSchema');
@@ -14,64 +15,57 @@ const router = Router();
 const validateParams = (req, _res, next) => {
   const myId = Number(req.params.myId);
   if (!Number.isInteger(myId) || myId <= 0) {
-    return next(new Error('myId must be a positive integer'));
+    return next(new AppError('Validation error', 400, ['myId must be a positive integer']));
   }
   if (req.params.accountId !== undefined) {
     const accId = Number(req.params.accountId);
     if (!Number.isInteger(accId) || accId <= 0) {
-      return next(new Error('accountId must be a positive integer'));
+      return next(new AppError('Validation error', 400, ['accountId must be a positive integer']));
     }
   }
   return next();
 };
 
-const injectCustomerId = (req, _res, next) => {
-  req.body.customerId = Number(req.params.myId);
-  return next();
-};
-
 router.get(
   '/myAccounts/:myId/accounts',
   authenticate,
-  authorizeSelfOrAdmin,
   validateParams,
-  controller.listMine
+  authorizeSelfOrAdmin,
+  controller.findAll
 );
 
 router.get(
   '/myAccounts/:myId/accounts/:accountId',
   authenticate,
-  authorizeSelfOrAdmin,
   validateParams,
-  controller.getMineById
+  authorizeSelfOrAdmin,
+  controller.findById
 );
 
 router.post(
   '/myAccounts/:myId/accounts',
   authenticate,
-  authorizeSelfOrAdmin,
   validateParams,
-  injectCustomerId,
+  authorizeSelfOrAdmin,
   validate(accountCreateSchema),
-  controller.createMine
+  controller.create
 );
 
 router.put(
   '/myAccounts/:myId/accounts/:accountId',
   authenticate,
-  authorizeSelfOrAdmin,
   validateParams,
-  injectCustomerId,
+  authorizeSelfOrAdmin,
   validate(accountUpdateSchema),
-  controller.updateMine
+  controller.update
 );
 
 router.delete(
   '/myAccounts/:myId/accounts/:accountId',
   authenticate,
-  authorizeSelfOrAdmin,
   validateParams,
-  controller.removeMine
+  authorizeSelfOrAdmin,
+  controller.delete
 );
 
 module.exports = router;
