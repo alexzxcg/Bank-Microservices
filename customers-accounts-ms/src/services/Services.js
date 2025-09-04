@@ -26,7 +26,7 @@ class Services {
   }
 
   async findById(id, ctx = {}) {
-    const entity = await this.repository.findByIdOrThrow(id, ctx);
+    const entity = await this.repository.findById(id, ctx);
     return this.toRead(entity);
   }
 
@@ -40,7 +40,7 @@ class Services {
     if (this.CreateOutputDTO) {
       return new this.CreateOutputDTO(created);
     }
-    return { id: created.id };
+    return { id: typeof created === 'object' ? created.id : created };
   }
 
   async update(data, id, ctx = {}) {
